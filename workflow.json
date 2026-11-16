@@ -1,0 +1,290 @@
+{
+  "name": "Agentic AI Customer Enquiry Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "customer-enquiry",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "2d3da7ab-ab58-40a9-b47c-e51ec73ee0f2",
+      "name": "Webhook",
+      "webhookId": "731b4023-4750-471d-88c2-edfafa0b047d"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://127.0.0.1:5000/analyze",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"customer_name\": \"{{ $json.body.customer_name }}\",\n  \"customer_id\": \"{{ $json.body.customer_id }}\",\n  \"message\": \"{{ $json.body.message }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        224,
+        0
+      ],
+      "id": "15437291-f448-40f3-b09c-621497456026",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "ef76ffeb-9d55-48ae-89f2-a19a1c6a8339",
+              "leftValue": "={{ $json.approval_status }}",
+              "rightValue": "Approved",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        448,
+        0
+      ],
+      "id": "880b7558-72b9-465c-a802-7b78a85ebc86",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        576,
+        96
+      ],
+      "id": "92078ee2-f0c5-4a42-b20b-2140c1d69cba",
+      "name": "Wait",
+      "webhookId": "dfcf3c9a-f947-4fe9-847e-2b89db0e9397"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "b0b52e49-05b0-4e11-8232-14237cfbe664",
+              "leftValue": "={{ $json.query.decision }}",
+              "rightValue": "approved",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        800,
+        96
+      ],
+      "id": "078a6ff9-d12c-4400-b648-f692dd3daf22",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f676dd4e-9470-4f87-b81e-16e662e181af",
+              "name": "approval_status",
+              "value": "Approved",
+              "type": "string"
+            },
+            {
+              "id": "442017ba-66d4-4ce6-9d25-87d772b19f69",
+              "name": "=customer_name",
+              "value": "={{ $('HTTP Request').item.json.customer_name }}",
+              "type": "string"
+            },
+            {
+              "id": "e6a0091f-f184-4c20-bf11-0dd4902cf90c",
+              "name": "category",
+              "value": "=\t{{ $('HTTP Request').item.json.category }}",
+              "type": "string"
+            },
+            {
+              "id": "00a1073a-871d-44a9-a202-7013bbb188ac",
+              "name": "priority",
+              "value": "={{ $('HTTP Request').item.json.priority }}",
+              "type": "string"
+            },
+            {
+              "id": "70d2166d-5424-42cc-b3c1-b7e952e8ad0a",
+              "name": "response",
+              "value": "=\t{{ $('HTTP Request').item.json.response }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        1024,
+        0
+      ],
+      "id": "6a16d34c-5405-421d-b300-ef7043aee31a",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b9e3807e-ac69-4f42-895c-615d04d45541",
+              "name": "approval_status",
+              "value": "Rejected",
+              "type": "string"
+            },
+            {
+              "id": "c6801d84-1bbf-4bf5-99ca-3dd74aa72684",
+              "name": "customer_name",
+              "value": "={{ $('HTTP Request').item.json.customer_name }}",
+              "type": "string"
+            },
+            {
+              "id": "d6141fcd-27fa-43d9-9438-b85ea95ab402",
+              "name": "category",
+              "value": "=\t{{ $('HTTP Request').item.json.category }}",
+              "type": "string"
+            },
+            {
+              "id": "bd46fa25-9ec0-439d-bdc4-047d451b906a",
+              "name": "response",
+              "value": "={{ $('HTTP Request').item.json.response }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        1024,
+        192
+      ],
+      "id": "2ab62202-da93-4e7b-9f11-fdc53c275173",
+      "name": "Edit Fields1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "7b3baec1-c461-42d4-a3ba-81cc00485b78",
+  "meta": {
+    "instanceId": "02c08a69c370b84e60ba0b5d7a0e1b63fcdd765c2353125f46f873154bfe10e2"
+  },
+  "nodeGroups": [],
+  "id": "j65naeKFwSQeAsOD",
+  "tags": []
+}
